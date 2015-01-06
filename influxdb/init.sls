@@ -1,6 +1,12 @@
 {% from "influxdb/map.jinja" import map with context %}
 {% from "influxdb/map.jinja" import influxdb with context %}
 
+{% if influxdb['pkgsource'] == 'local' %}
+influxdb_install:
+  pkg.installed:
+    - sources:
+      - influxdb: salt://influxdb/packages/influxdb-latest-1.x86_64.rpm
+{% else %}
 {% if grains['os_family'] == 'Debian' or 'Ubuntu' %}
 {% if influxdb['version'] is defined %}
   {% set filename = "influxdb_" + influxdb['version'] + "_" + grains['osarch'] + ".deb" %}
@@ -28,6 +34,7 @@ influxdb_install:
       - cmd: influxdb_package
     - watch:
       - cmd: influxdb_package
+{% endif %}
 
 influxdb_confdir:
   file.directory:
